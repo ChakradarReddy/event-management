@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Create Event - EventHub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <h1 class="display-6 fw-bold mb-2">Create New Event</h1>
+                <p class="text-muted">Share your event with the college community</p>
+            </div>
+
+            <!-- Event Creation Form -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5">
+                    <form method="POST" action="{{ url_for('create_event') }}" class="needs-validation" novalidate>
+                        <!-- Basic Information -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-info-circle me-2 text-primary"></i>
+                                Basic Information
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="title" class="form-label fw-semibold">
+                                        <i class="fas fa-heading me-2"></i>Event Title *
+                                    </label>
+                                    <input type="text" class="form-control" id="title" name="title" required 
+                                           placeholder="Enter a compelling event title">
+                                    <div class="invalid-feedback">Please provide an event title.</div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="event_type" class="form-label fw-semibold">
+                                        <i class="fas fa-tag me-2"></i>Event Type *
+                                    </label>
+                                    <select class="form-select" id="event_type" name="event_type" required>
+                                        <option value="">Choose type</option>
+                                        <option value="fest">Fest</option>
+                                        <option value="seminar">Seminar</option>
+                                        <option value="webinar">Webinar</option>
+                                        <option value="workshop">Workshop</option>
+                                        <option value="conference">Conference</option>
+                                        <option value="competition">Competition</option>
+                                        <option value="hackathon">Hackathon</option>
+                                        <option value="cultural">Cultural Event</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select an event type.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label fw-semibold">
+                                    <i class="fas fa-align-left me-2"></i>Event Description *
+                                </label>
+                                <textarea class="form-control" id="description" name="description" rows="4" required
+                                          placeholder="Describe your event in detail..."></textarea>
+                                <div class="invalid-feedback">Please provide an event description.</div>
+                            </div>
+                        </div>
+
+                        <!-- Date and Time -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                                Date and Time
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="start_date" class="form-label fw-semibold">
+                                        <i class="fas fa-play me-2"></i>Start Date & Time *
+                                    </label>
+                                    <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                                    <div class="invalid-feedback">Please select a start date and time.</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="end_date" class="form-label fw-semibold">
+                                        <i class="fas fa-stop me-2"></i>End Date & Time *
+                                    </label>
+                                    <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
+                                    <div class="invalid-feedback">Please select an end date and time.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="registration_deadline" class="form-label fw-semibold">
+                                    <i class="fas fa-clock me-2"></i>Registration Deadline
+                                </label>
+                                <input type="datetime-local" class="form-control" id="registration_deadline" name="registration_deadline"
+                                       placeholder="Optional: Set registration deadline">
+                                <small class="text-muted">Leave empty if registration is open until event starts</small>
+                            </div>
+                        </div>
+
+                        <!-- Location and Capacity -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                Location and Capacity
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="venue" class="form-label fw-semibold">
+                                        <i class="fas fa-building me-2"></i>Venue *
+                                    </label>
+                                    <input type="text" class="form-control" id="venue" name="venue" required
+                                           placeholder="e.g., Main Auditorium, Room 101, Online">
+                                    <div class="invalid-feedback">Please provide a venue.</div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="max_participants" class="form-label fw-semibold">
+                                        <i class="fas fa-users me-2"></i>Max Participants *
+                                    </label>
+                                    <input type="number" class="form-control" id="max_participants" name="max_participants" 
+                                           required min="1" placeholder="100">
+                                    <div class="invalid-feedback">Please specify maximum participants.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Details -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="fas fa-plus-circle me-2 text-primary"></i>
+                                Additional Details
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label for="tags" class="form-label fw-semibold">
+                                    <i class="fas fa-tags me-2"></i>Tags
+                                </label>
+                                <input type="text" class="form-control" id="tags" name="tags"
+                                       placeholder="e.g., technology, networking, free, certificate">
+                                <small class="text-muted">Separate tags with commas</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="requirements" class="form-label fw-semibold">
+                                    <i class="fas fa-list-check me-2"></i>Requirements
+                                </label>
+                                <textarea class="form-control" id="requirements" name="requirements" rows="3"
+                                          placeholder="Any prerequisites or requirements for participants..."></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="contact_info" class="form-label fw-semibold">
+                                    <i class="fas fa-phone me-2"></i>Contact Information
+                                </label>
+                                <input type="text" class="form-control" id="contact_info" name="contact_info"
+                                       placeholder="Phone, email, or other contact details">
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg flex-fill">
+                                <i class="fas fa-plus me-2"></i>Create Event
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Event Creation Tips -->
+            <div class="card border-0 bg-light mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>
+                        Tips for Creating Great Events
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Use clear, descriptive titles
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Provide detailed descriptions
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Set realistic participant limits
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Choose appropriate event types
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Set reasonable deadlines
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Include relevant tags
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Set minimum dates
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const startDate = document.getElementById('start_date');
+    const endDate = document.getElementById('end_date');
+    const regDeadline = document.getElementById('registration_deadline');
+    
+    // Set minimum start date to now
+    const nowString = now.toISOString().slice(0, 16);
+    startDate.min = nowString;
+    
+    // Update end date when start date changes
+    startDate.addEventListener('change', function() {
+        endDate.min = this.value;
+        if (endDate.value && endDate.value <= this.value) {
+            endDate.value = '';
+        }
+    });
+    
+    // Update registration deadline when start date changes
+    startDate.addEventListener('change', function() {
+        if (regDeadline.value && regDeadline.value >= this.value) {
+            regDeadline.value = '';
+        }
+    });
+    
+    // Set minimum registration deadline to now
+    regDeadline.min = nowString;
+});
+
+// Auto-calculate duration
+function updateDuration() {
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const duration = (end - start) / (1000 * 60 * 60); // hours
+        
+        if (duration > 0) {
+            // You could display this somewhere if needed
+            console.log(`Event duration: ${duration.toFixed(1)} hours`);
+        }
+    }
+}
+
+document.getElementById('start_date').addEventListener('change', updateDuration);
+document.getElementById('end_date').addEventListener('change', updateDuration);
+</script>
+{% endblock %}

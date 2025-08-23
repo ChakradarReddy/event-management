@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - EventHub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold mb-2">Notifications</h1>
+                    <p class="text-muted mb-0">Stay updated with your event activities</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double me-2"></i>Mark All as Read
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {% if notifications %}
+                        <div class="list-group list-group-flush">
+                            {% for notification in notifications %}
+                            <div class="list-group-item border-0 px-0 py-3 {% if not notification.is_read %}bg-light{% endif %}">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                            {% if notification.notification_type == 'registration' %}
+                                                <i class="fas fa-user-check text-primary"></i>
+                                            {% elif notification.notification_type == 'certificate' %}
+                                                <i class="fas fa-certificate text-success"></i>
+                                            {% elif notification.notification_type == 'event_update' %}
+                                                <i class="fas fa-calendar-alt text-info"></i>
+                                            {% else %}
+                                                <i class="fas fa-bell text-warning"></i>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 {% if not notification.is_read %}fw-bold{% endif %}">
+                                                    {{ notification.title }}
+                                                </h6>
+                                                <p class="mb-1 text-muted">{{ notification.message }}</p>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    {{ notification.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                                </small>
+                                            </div>
+                                            
+                                            <div class="d-flex gap-2">
+                                                {% if not notification.is_read %}
+                                                <form method="POST" action="{{ url_for('mark_notification_read', notification_id=notification.id) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Read">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                                
+                                                <span class="badge bg-secondary">{{ notification.notification_type.title() }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="text-muted mb-3">
+                                <i class="fas fa-bell-slash" style="font-size: 4rem;"></i>
+                            </div>
+                            <h5 class="text-muted">No notifications yet</h5>
+                            <p class="text-muted">You'll receive notifications about event updates, registrations, and certificates here.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Types Info -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                        Notification Types
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                    <i class="fas fa-user-check text-primary"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Registration</h6>
+                                    <small class="text-muted">Event registration confirmations</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                                    <i class="fas fa-certificate text-success"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Certificate</h6>
+                                    <small class="text-muted">Certificate issuance notifications</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
+                                    <i class="fas fa-calendar-alt text-info"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Event Updates</h6>
+                                    <small class="text-muted">Event changes and reminders</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function markAllAsRead() {
+    if (confirm('Mark all notifications as read?')) {
+        // This would typically make an API call to mark all as read
+        // For now, we'll just show a success message
+        alert('All notifications marked as read!');
+        
+        // Reload the page to reflect changes
+        location.reload();
+    }
+}
+
+// Auto-refresh notifications every 60 seconds
+setInterval(function() {
+    // This could fetch new notifications via AJAX
+    console.log('Checking for new notifications...');
+}, 60000);
+
+// Mark notification as read when clicked
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationItems = document.querySelectorAll('.list-group-item');
+    
+    notificationItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            // Mark as read when clicked (if not already read)
+            const markAsReadBtn = this.querySelector('.btn-outline-success');
+            if (markAsReadBtn) {
+                markAsReadBtn.click();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

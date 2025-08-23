@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - EventHub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 bg-gradient text-white" style="background: linear-gradient(135deg, var(--dark-color), var(--primary-color));">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="fw-bold mb-2">Admin Dashboard 🚀</h2>
+                            <p class="mb-0 opacity-75">System overview and management tools for EventHub</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="bg-white bg-opacity-20 rounded-circle d-inline-block p-4">
+                                <i class="fas fa-shield-alt text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Statistics -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-3 col-6">
+            <div class="card border-0 bg-primary text-white text-center">
+                <div class="card-body p-3">
+                    <i class="fas fa-calendar mb-2" style="font-size: 1.5rem;"></i>
+                    <h4 class="mb-1">{{ total_events }}</h4>
+                    <small>Total Events</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 bg-success text-white text-center">
+                <div class="card-body p-3">
+                    <i class="fas fa-users mb-2" style="font-size: 1.5rem;"></i>
+                    <h4 class="mb-1">{{ total_users }}</h4>
+                    <small>Total Users</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 bg-info text-white text-center">
+                <div class="card-body p-3">
+                    <i class="fas fa-user-check mb-2" style="font-size: 1.5rem;"></i>
+                    <h4 class="mb-1">{{ total_registrations }}</h4>
+                    <small>Total Registrations</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 bg-warning text-white text-center">
+                <div class="card-body p-3">
+                    <i class="fas fa-chart-line mb-2" style="font-size: 1.5rem;"></i>
+                    <h4 class="mb-1">Active</h4>
+                    <small>System Status</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-bolt me-2 text-warning"></i>
+                        Quick Actions
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-3 col-6">
+                            <a href="{{ url_for('create_event') }}" class="btn btn-primary w-100 py-3">
+                                <i class="fas fa-plus me-2"></i>Create Event
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="{{ url_for('events') }}" class="btn btn-outline-primary w-100 py-3">
+                                <i class="fas fa-calendar me-2"></i>Manage Events
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="#" class="btn btn-outline-success w-100 py-3">
+                                <i class="fas fa-users me-2"></i>User Management
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="#" class="btn btn-outline-info w-100 py-3">
+                                <i class="fas fa-chart-bar me-2"></i>System Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Events -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                        Recent Events
+                    </h5>
+                    <a href="{{ url_for('events') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-eye me-2"></i>View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_events %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Organizer</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Participants</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in recent_events %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ event.title }}</div>
+                                        <small class="text-muted">{{ event.description[:50] }}{% if event.description|length > 50 %}...{% endif %}</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ event.creator.full_name }}</div>
+                                        <small class="text-muted">{{ event.creator.department or 'N/A' }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ event.event_type.title() }}</span>
+                                    </td>
+                                    <td>
+                                        <div>{{ event.start_date.strftime('%b %d, %Y') }}</div>
+                                        <small class="text-muted">{{ event.start_date.strftime('%I:%M %p') }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ event.current_participants }}/{{ event.max_participants }}</div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar" style="width: {{ (event.current_participants / event.max_participants * 100)|round(1) }}%"></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if event.start_date > now %}
+                                            <span class="badge bg-info">Upcoming</span>
+                                        {% elif event.end_date < now %}
+                                            <span class="badge bg-secondary">Completed</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Ongoing</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-outline-primary btn-sm" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ url_for('manage_event', event_id=event.id) }}" class="btn btn-outline-success btn-sm" title="Manage">
+                                                <i class="fas fa-cog"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <div class="text-muted mb-3">
+                            <i class="fas fa-calendar-times" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="text-muted">No events in the system</h5>
+                        <p class="text-muted">Start by creating the first event!</p>
+                        <a href="{{ url_for('create_event') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Event
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Health -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-heartbeat me-2 text-success"></i>
+                        System Health
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Database Status</span>
+                            <span class="badge bg-success">Healthy</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Server Performance</span>
+                            <span class="badge bg-success">Optimal</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Storage Usage</span>
+                            <span class="badge bg-warning">Moderate</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Security Status</span>
+                            <span class="badge bg-success">Secure</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-chart-pie me-2 text-info"></i>
+                        Quick Analytics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center g-3">
+                        <div class="col-6">
+                            <div class="bg-primary bg-opacity-10 rounded p-3">
+                                <h4 class="text-primary mb-1">{{ (total_events / max(total_users, 1) * 100)|round(1) }}%</h4>
+                                <small class="text-muted">Event/User Ratio</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-success bg-opacity-10 rounded p-3">
+                                <h4 class="text-success mb-1">{{ (total_registrations / max(total_events, 1))|round(1) }}</h4>
+                                <small class="text-muted">Avg Registrations/Event</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-info bg-opacity-10 rounded p-3">
+                                <h4 class="text-info mb-1">{{ (total_registrations / max(total_users, 1))|round(1) }}</h4>
+                                <small class="text-muted">Avg Registrations/User</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-warning bg-opacity-10 rounded p-3">
+                                <h4 class="text-warning mb-1">85%</h4>
+                                <small class="text-muted">System Uptime</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

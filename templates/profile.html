@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - {{ current_user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold mb-2">My Profile</h1>
+                    <p class="text-muted mb-0">Manage your account and view your activity</p>
+                </div>
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Information -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-4">
+                                <i class="fas fa-user-circle text-primary" style="font-size: 4rem;"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h2 class="fw-bold mb-2">{{ current_user.full_name }}</h2>
+                            <p class="text-muted mb-2">
+                                <i class="fas fa-at me-2"></i>{{ current_user.username }}
+                            </p>
+                            <span class="badge bg-primary fs-6">{{ current_user.role.title() }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Details -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                        Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Full Name</label>
+                            <div class="fw-bold">{{ current_user.full_name }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Email</label>
+                            <div class="fw-bold">{{ current_user.email }}</div>
+                        </div>
+                        {% if current_user.department %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Department</label>
+                            <div class="fw-bold">{{ current_user.department }}</div>
+                        </div>
+                        {% endif %}
+                        {% if current_user.student_id %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Student ID</label>
+                            <div class="fw-bold">{{ current_user.student_id }}</div>
+                        </div>
+                        {% endif %}
+                        {% if current_user.phone %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Phone</label>
+                            <div class="fw-bold">{{ current_user.phone }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Member Since</label>
+                            <div class="fw-bold">{{ current_user.created_at.strftime('%B %d, %Y') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Summary -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>
+                        Activity Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.role == 'student' %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 text-center">
+                                    <div class="display-6 fw-bold text-primary mb-2">
+                                        {{ current_user.registrations|length }}
+                                    </div>
+                                    <small class="text-muted">Events Registered</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 text-center">
+                                    <div class="display-6 fw-bold text-success mb-2">
+                                        {{ current_user.registrations|selectattr('attendance_confirmed', 'equalto', true)|list|length }}
+                                    </div>
+                                    <small class="text-muted">Events Attended</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif current_user.role == 'organizer' %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 text-center">
+                                    <div class="display-6 fw-bold text-primary mb-2">
+                                        {{ current_user.events_created|length }}
+                                    </div>
+                                    <small class="text-muted">Events Created</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 text-center">
+                                    <div class="display-6 fw-bold text-success mb-2">
+                                        {{ current_user.events_created|sum(attribute='current_participants') }}
+                                    </div>
+                                    <small class="text-muted">Total Participants</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Stats -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                        Quick Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center g-3">
+                        <div class="col-6">
+                            <div class="bg-primary bg-opacity-10 rounded p-2">
+                                <div class="fw-bold text-primary">
+                                    {% if current_user.role == 'student' %}
+                                        {{ current_user.registrations|length }}
+                                    {% else %}
+                                        {{ current_user.events_created|length }}
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">
+                                    {% if current_user.role == 'student' %}Registrations{% else %}Events{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-success bg-opacity-10 rounded p-2">
+                                <div class="fw-bold text-success">
+                                    {% if current_user.role == 'student' %}
+                                        {{ current_user.registrations|selectattr('certificate_issued', 'equalto', true)|list|length }}
+                                    {% else %}
+                                        {{ current_user.events_created|sum(attribute='current_participants') }}
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">
+                                    {% if current_user.role == 'student' %}Certificates{% else %}Participants{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-cog me-2 text-primary"></i>
+                        Account Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('notifications') }}" class="btn btn-outline-info">
+                            <i class="fas fa-bell me-2"></i>View Notifications
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Info -->
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-shield-alt me-2 text-success"></i>
+                        Security Status
+                    </h6>
+                    <div class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <small>Password protected</small>
+                    </div>
+                    <div class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <small>Account verified</small>
+                    </div>
+                    <div class="mb-0">
+                        <i class="fas fa-clock text-warning me-2"></i>
+                        <small>Last login: Today</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
