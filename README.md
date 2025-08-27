@@ -9,7 +9,7 @@ A comprehensive, modern web application for managing college events, fests, semi
 - **User Registration**: Student and organizer role-based access
 - **Event Registration**: Easy participant registration with capacity management
 - **Attendance Tracking**: Mark and confirm participant attendance
-- **Digital Certificates**: Generate and issue certificates automatically
+- **Digital Certificates**: Generate and issue professional PDF/HTML certificates automatically
 - **Smart Notifications**: Real-time updates and reminders
 
 ### 🎨 User Experience
@@ -47,6 +47,8 @@ A comprehensive, modern web application for managing college events, fests, semi
 - gunicorn 21.2.0
 - email-validator 2.0.0
 - bcrypt 4.0.1
+- weasyprint 60.2 (for PDF certificate generation)
+- reportlab 4.0.4 (alternative PDF generation)
 
 ## 🛠️ Installation
 
@@ -87,6 +89,30 @@ A comprehensive, modern web application for managing college events, fests, semi
    ```
 
 The application will be available at `http://localhost:5000`
+
+### Certificate System Setup
+
+The system includes a professional certificate generation system that can create beautiful PDF certificates:
+
+1. **PDF Generation (Recommended)**
+   - Uses WeasyPrint for high-quality PDF generation
+   - Professional certificate template with custom styling
+   - Automatic certificate numbering and validation
+
+2. **Fallback HTML Certificates**
+   - If WeasyPrint is not available, generates HTML certificates
+   - Can be printed or saved as PDF using browser print function
+   - Maintains professional appearance
+
+3. **System Dependencies**
+   - **macOS**: `brew install cairo pango gdk-pixbuf libffi`
+   - **Ubuntu/Debian**: `sudo apt-get install build-essential python3-dev python3-pip python3-setuptools python3-wheel python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info`
+   - **Windows**: Install GTK+ runtime environment
+
+4. **Test Certificate Generation**
+   ```bash
+   python test_certificate.py
+   ```
 
 ### Heroku Deployment
 

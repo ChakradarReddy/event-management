@@ -7,12 +7,12 @@
     <!-- Welcome Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-0 bg-gradient text-white" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <h2 class="fw-bold mb-2">Welcome back, {{ current_user.full_name }}! 👋</h2>
-                            <p class="mb-0 opacity-75">Stay updated with your upcoming events and track your participation</p>
+                            <h2 class="fw-bold mb-2 text-white">Welcome back, {{ current_user.full_name }}! 👋</h2>
+                            <p class="mb-0 text-white opacity-90">Stay updated with your upcoming events and track your participation</p>
                         </div>
                         <div class="col-md-4 text-center">
                             <div class="bg-white bg-opacity-20 rounded-circle d-inline-block p-4">
@@ -174,9 +174,14 @@
                                     </td>
                                     <td>
                                         {% if registration.certificate_issued %}
-                                            <a href="{{ url_for('download_certificate', registration_id=registration.id) }}" class="btn btn-success btn-sm">
-                                                <i class="fas fa-download me-1"></i>Download
-                                            </a>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('preview_certificate', registration_id=registration.id) }}" class="btn btn-info btn-sm" target="_blank" title="Preview Certificate">
+                                                    <i class="fas fa-eye me-1"></i>Preview
+                                                </a>
+                                                <a href="{{ url_for('download_certificate', registration_id=registration.id) }}" class="btn btn-success btn-sm" title="Download Certificate">
+                                                    <i class="fas fa-download me-1"></i>Download
+                                                </a>
+                                            </div>
                                         {% else %}
                                             <span class="badge bg-secondary">Not Issued</span>
                                         {% endif %}

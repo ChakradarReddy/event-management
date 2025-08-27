@@ -197,7 +197,10 @@
                                     </td>
                                     <td>
                                         {% if registration.certificate_issued %}
-                                            <span class="badge bg-success">Issued</span>
+                                            <div class="d-flex flex-column gap-1">
+                                                <span class="badge bg-success">Issued</span>
+                                                <small class="text-muted">{{ registration.certificate_url.split('_')[-1].split('.')[0] }}</small>
+                                            </div>
                                         {% else %}
                                             <span class="badge bg-secondary">Not Issued</span>
                                         {% endif %}

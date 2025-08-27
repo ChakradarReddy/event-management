@@ -13,13 +13,31 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
 import uuid
+try:
+    import weasyprint
+    from weasyprint import HTML, CSS
+    from weasyprint.text.fonts import FontConfiguration
+    WEASYPRINT_AVAILABLE = True
+    print("✅ WeasyPrint successfully imported - PDF certificates enabled!")
+except ImportError as e:
+    WEASYPRINT_AVAILABLE = False
+    print(f"❌ WeasyPrint import failed: {e}")
+    print("Warning: WeasyPrint not available. Certificate generation will use fallback method.")
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
+
+# Configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///events.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Set Flask environment
+if os.environ.get('FLASK_ENV') == 'production':
+    app.config['DEBUG'] = False
+else:
+    app.config['DEBUG'] = True
 
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -354,33 +372,115 @@ def issue_certificate(registration_id):
         flash('Cannot issue certificate without confirmed attendance!', 'error')
         return redirect(url_for('manage_event', event_id=registration.event_id))
     
-    # Generate certificate (in a real app, you'd create a proper PDF)
-    certificate_filename = f"certificate_{registration.id}_{uuid.uuid4().hex[:8]}.txt"
-    certificate_path = os.path.join(app.config['UPLOAD_FOLDER'], certificate_filename)
+    try:
+        # Generate certificate
+        if WEASYPRINT_AVAILABLE:
+            # Generate PDF certificate
+            certificate_filename = f"certificate_{registration.id}_{uuid.uuid4().hex[:8]}.pdf"
+            certificate_path = os.path.join(app.config['UPLOAD_FOLDER'], certificate_filename)
+            
+            # Prepare certificate data
+            certificate_data = {
+                'certificate_number': f"CERT-{registration.id:06d}",
+                'participant_name': registration.user.full_name,
+                'event_title': registration.event.title,
+                'event_type': registration.event.event_type.title(),
+                'event_date': registration.event.start_date.strftime('%B %d, %Y'),
+                'event_venue': registration.event.venue,
+                'issue_date': datetime.utcnow().strftime('%B %d, %Y')
+            }
+            
+            # Render certificate template
+            certificate_html = render_template('certificate_template.html', **certificate_data)
+            
+            # Configure fonts for PDF generation
+            font_config = FontConfiguration()
+            
+            # Generate PDF from HTML
+            pdf = HTML(string=certificate_html).write_pdf(
+                stylesheets=[],
+                font_config=font_config
+            )
+            
+            # Save PDF to file
+            with open(certificate_path, 'wb') as f:
+                f.write(pdf)
+                
+        else:
+            # Fallback: Generate HTML certificate
+            certificate_filename = f"certificate_{registration.id}_{uuid.uuid4().hex[:8]}.html"
+            certificate_path = os.path.join(app.config['UPLOAD_FOLDER'], certificate_filename)
+            
+            # Prepare certificate data
+            certificate_data = {
+                'certificate_number': f"CERT-{registration.id:06d}",
+                'participant_name': registration.user.full_name,
+                'event_title': registration.event.title,
+                'event_type': registration.event.event_type.title(),
+                'event_date': registration.event.start_date.strftime('%B %d, %Y'),
+                'event_venue': registration.event.venue,
+                'issue_date': datetime.utcnow().strftime('%B %d, %Y')
+            }
+            
+            # Render certificate template
+            certificate_html = render_template('certificate_template.html', **certificate_data)
+            
+            # Save HTML to file
+            with open(certificate_path, 'w', encoding='utf-8') as f:
+                f.write(certificate_html)
+        
+        # Update registration record
+        registration.certificate_issued = True
+        registration.certificate_url = certificate_filename
+        db.session.commit()
+        
+        # Create notification
+        notification = Notification(
+            user_id=registration.user_id,
+            title=f'Certificate Issued',
+            message=f'Your certificate for "{registration.event.title}" has been issued!',
+            notification_type='certificate'
+        )
+        db.session.add(notification)
+        db.session.commit()
+        
+        flash('Certificate issued successfully!', 'success')
+        
+    except Exception as e:
+        flash(f'Error generating certificate: {str(e)}', 'error')
+        app.logger.error(f'Certificate generation error: {str(e)}')
+        return redirect(url_for('manage_event', event_id=registration.event_id))
     
-    with open(certificate_path, 'w') as f:
-        f.write(f"CERTIFICATE OF PARTICIPATION\n")
-        f.write(f"Event: {registration.event.title}\n")
-        f.write(f"Participant: {registration.user.full_name}\n")
-        f.write(f"Date: {registration.event.start_date.strftime('%B %d, %Y')}\n")
-        f.write(f"Issued on: {datetime.utcnow().strftime('%B %d, %Y')}\n")
-    
-    registration.certificate_issued = True
-    registration.certificate_url = certificate_filename
-    db.session.commit()
-    
-    # Create notification
-    notification = Notification(
-        user_id=registration.user_id,
-        title=f'Certificate Issued',
-        message=f'Your certificate for "{registration.event.title}" has been issued!',
-        notification_type='certificate'
-    )
-    db.session.add(notification)
-    db.session.commit()
-    
-    flash('Certificate issued successfully!', 'success')
+    # Return redirect after successful certificate generation
     return redirect(url_for('manage_event', event_id=registration.event_id))
+    
+
+
+@app.route('/preview_certificate/<int:registration_id>')
+@login_required
+def preview_certificate(registration_id):
+    registration = Registration.query.get_or_404(registration_id)
+    
+    if registration.user_id != current_user.id:
+        flash('Unauthorized!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    if not registration.certificate_issued:
+        flash('Certificate not yet issued!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    # Prepare certificate data for preview
+    certificate_data = {
+        'certificate_number': f"CERT-{registration.id:06d}",
+        'participant_name': registration.user.full_name,
+        'event_title': registration.event.title,
+        'event_type': registration.event.event_type.title(),
+        'event_date': registration.event.start_date.strftime('%B %d, %Y'),
+        'event_venue': registration.event.venue,
+        'issue_date': datetime.utcnow().strftime('%B %d, %Y')
+    }
+    
+    return render_template('certificate_template.html', **certificate_data)
 
 @app.route('/download_certificate/<int:registration_id>')
 @login_required
@@ -398,7 +498,13 @@ def download_certificate(registration_id):
     certificate_path = os.path.join(app.config['UPLOAD_FOLDER'], registration.certificate_url)
     
     if os.path.exists(certificate_path):
-        return send_file(certificate_path, as_attachment=True)
+        # Determine MIME type based on file extension
+        if certificate_path.endswith('.pdf'):
+            return send_file(certificate_path, as_attachment=True, mimetype='application/pdf')
+        elif certificate_path.endswith('.html'):
+            return send_file(certificate_path, as_attachment=True, mimetype='text/html')
+        else:
+            return send_file(certificate_path, as_attachment=True)
     else:
         flash('Certificate file not found!', 'error')
         return redirect(url_for('dashboard'))
@@ -482,10 +588,31 @@ def not_found_error(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    db.session.rollback()
+    try:
+        db.session.rollback()
+    except:
+        pass  # Ignore rollback errors during deployment
+    return render_template('500.html'), 500
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Handle any other exceptions gracefully
+    try:
+        db.session.rollback()
+    except:
+        pass
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    
+    # Get port from environment variable (for Heroku) or use 5000 for local development
+    port = int(os.environ.get('PORT', 5000))
+    
+    # For local development, use debug mode and bind to localhost
+    # For production/Heroku, bind to all interfaces
+    if os.environ.get('FLASK_ENV') == 'production':
+        app.run(host='0.0.0.0', port=port, debug=False)
+    else:
+        app.run(host='127.0.0.1', port=port, debug=True)
