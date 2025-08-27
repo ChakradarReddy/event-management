@@ -115,18 +115,45 @@ def load_user(user_id):
 # Routes
 @app.route('/')
 def index():
-    upcoming_events = Event.query.filter(
-        Event.start_date >= datetime.utcnow(),
-        Event.is_active == True
-    ).order_by(Event.start_date).limit(6).all()
-    
-    featured_events = Event.query.filter(
-        Event.is_active == True
-    ).order_by(Event.created_at.desc()).limit(3).all()
-    
-    return render_template('index.html', 
-                         upcoming_events=upcoming_events,
-                         featured_events=featured_events)
+    try:
+        upcoming_events = Event.query.filter(
+            Event.start_date >= datetime.utcnow(),
+            Event.is_active == True
+        ).order_by(Event.start_date).limit(6).all()
+        
+        featured_events = Event.query.filter(
+            Event.is_active == True
+        ).order_by(Event.created_at.desc()).limit(3).all()
+        
+        return render_template('index.html', 
+                             upcoming_events=upcoming_events,
+                             featured_events=featured_events)
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error in index route: {e}")
+        # Return a simple response instead of failing
+        return render_template('index.html', 
+                             upcoming_events=[],
+                             featured_events=[],
+                             error="Database temporarily unavailable")
+
+@app.route('/health')
+def health_check():
+    try:
+        # Test database connection
+        db.session.execute('SELECT 1')
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected',
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'database': 'disconnected',
+            'error': str(e),
+            'timestamp': datetime.utcnow().isoformat()
+        }), 500
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
