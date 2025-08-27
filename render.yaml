@@ -3,11 +3,11 @@ services:
     name: college-event-system
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: chmod +x build.sh && ./build.sh
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.18
+        value: 3.13.4
       - key: SECRET_KEY
         generateValue: true
       - key: FLASK_ENV
