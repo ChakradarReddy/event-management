@@ -8,7 +8,19 @@ echo "🚀 Starting build process..."
 pip install --upgrade pip
 
 echo "📦 Installing dependencies..."
-pip install -r requirements.txt
+# Install packages one by one to identify any issues
+pip install Flask==2.3.3
+pip install Flask-SQLAlchemy==3.0.5
+pip install Flask-Login==0.6.3
+pip install Flask-WTF==1.1.1
+pip install WTForms==3.0.1
+pip install Werkzeug==2.3.7
+pip install Pillow==9.5.0
+pip install python-dotenv==1.0.0
+pip install gunicorn==21.2.0
+pip install email-validator==2.0.0
+pip install bcrypt==4.0.1
+pip install reportlab==3.6.12
 
 # Create uploads directory if it doesn't exist
 mkdir -p uploads

@@ -1,23 +1,12 @@
-Flask==3.0.0
-Flask-SQLAlchemy==3.1.1
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
 Flask-Login==0.6.3
-Flask-WTF==1.2.1
-WTForms==3.1.1
-Werkzeug==3.0.1
-Pillow==10.2.0
+Flask-WTF==1.1.1
+WTForms==3.0.1
+Werkzeug==2.3.7
+Pillow==9.5.0
 python-dotenv==1.0.0
 gunicorn==21.2.0
-email-validator==2.1.0
-bcrypt==4.1.2
-weasyprint>=66.0
-reportlab==4.0.7
-cairocffi>=0.9.0
-cffi>=1.15.0
-html5lib>=1.1
-cssselect2>=0.1
-pyphen>=0.9.1
-fonttools>=4.0.0
-pydyf>=0.8.0
-# System dependencies (install with package manager):
-# macOS: brew install cairo pango gdk-pixbuf libffi gobject-introspection glib
-# Ubuntu/Debian: sudo apt-get install build-essential python3-dev python3-pip python3-setuptools python3-wheel python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info libgirepository1.0-dev
+email-validator==2.0.0
+bcrypt==4.0.1
+reportlab==3.6.12
