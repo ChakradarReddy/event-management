@@ -293,13 +293,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: Complete setup and usage guides
 - **Deployment Ready**: Heroku deployment included
 
-## 📞 Support
-
-For support and questions:
-- **Email**: support@eventhub.edu
-- **Documentation**: [Project Wiki](wiki-link)
-- **Issues**: [GitHub Issues](issues-link)
-
 ## 🎉 Acknowledgments
 
 - Flask community for the excellent framework
